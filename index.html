@@ -176,7 +176,6 @@ function confirmOrder() {
     total += item.price;
   });
   content += `\n合計: ¥${total}`;
-<script>
   const webhookURL = "https://script.google.com/macros/s/AKfycbxGsJUsMjVC7mRz7CoQVrd7rXQO3ZiY8hA9A1-kCJUaD2moFkhM_iRuaW5TS-4rbdF6/exec";
   fetch(webhookURL, {
     method: "POST",
