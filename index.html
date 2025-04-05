@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>CPMショップ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    /* 省略せず全部のCSSを表示しています */
     body {
       font-family: 'Arial', sans-serif;
       background: #fef6f9;
@@ -109,9 +110,9 @@ const products = [
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 function showPage(page) {
-  document.getElementById("shop-page").classList.add("hidden");
-  document.getElementById("cart-page").classList.add("hidden");
-  document.getElementById("confirm-page").classList.add("hidden");
+  ["shop", "cart", "confirm"].forEach(p => {
+    document.getElementById(`${p}-page`).classList.add("hidden");
+  });
   document.getElementById(`${page}-page`).classList.remove("hidden");
   if (page === "cart") renderCart();
   if (page === "shop") renderProducts();
@@ -175,14 +176,13 @@ function confirmOrder() {
     total += item.price;
   });
   content += `\n合計: ¥${total}`;
-
-  const webhookURL = "ｋｗｊりえｊｒ"; // ← セキュリティのため、後で置き換えて！
+<script>
+  const webhookURL = "https://script.google.com/macros/s/AKfycbxGsJUsMjVC7mRz7CoQVrd7rXQO3ZiY8hA9A1-kCJUaD2moFkhM_iRuaW5TS-4rbdF6/exec";
   fetch(webhookURL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ content })
   }).then(() => {
-    clearCart();
     showPage("confirm");
   }).catch(() => {
     alert("注文送信に失敗しました");
