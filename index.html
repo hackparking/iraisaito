@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>🚙CPM🚙ショップ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background: #fef6f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #d6336c;
+    }
+    .hidden { display: none; }
+    .products, .cart-items {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      padding: 10px;
+    }
+    .product, .cart-item {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+    .product:hover, .cart-item:hover { transform: scale(1.03); }
+    .product img, .cart-item img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+    }
+    .details {
+      padding: 15px;
+    }
+    .product-title { font-size: 18px; margin: 0 0 10px; }
+    .product-price { color: #d6336c; font-weight: bold; margin-bottom: 10px; }
+    .button {
+      background: #ff8fb1;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .button:hover { background: #ff5c8a; }
+    .nav { text-align: center; margin: 20px; }
+    .form-input {
+      display: block;
+      margin: 10px auto;
+      padding: 10px;
+      font-size: 14px;
+      width: 80%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>CPM 依頼サイト</h1>
+<div class="nav">
+  <button class="button" onclick="showPage('shop')">商品一覧</button>
+  <button class="button" onclick="showPage('cart')">カートを見る</button>
+</div>
+
+<!-- 商品一覧 -->
+<div id="shop-page">
+  <div class="products" id="product-list"></div>
+</div>
+
+<!-- カートページ -->
+<div id="cart-page" class="hidden">
+  <h2>🛒 カートの中身</h2>
+  <div class="cart-items" id="cart-items"></div>
+  <div style="text-align:center; margin-top: 10px; font-weight: bold; font-size: 16px; color: #d6336c;">
+    合計金額: <span id="cart-total">¥0</span>
+  </div>
+  <input type="text" id="buyer-name" class="form-input" placeholder="お名前を入力してください">
+  <input type="text" id="discord-id" class="form-input" placeholder="Discord IDを入力してください">
+  <div style="text-align:center; margin-top:20px;">
+    <button class="button" onclick="confirmOrder()">注文を確定する</button>
+  </div>
+</div>
+
+<!-- 確認ページ -->
+<div id="confirm-page" class="hidden">
+  <h2>✅ 注文ありがとうございました！</h2>
+  <p style="text-align:center;">注文内容はDiscordに送信されました。</p>
+  <div style="text-align:center; margin-top:20px;">
+    <button class="button" onclick="clearCart(); showPage('shop')">トップに戻る</button>
+  </div>
+</div>
+
+<script>
+const products = [
+  { id: 1, name: "CPM ID指定垢", price: 200, img: "https://raw.githubusercontent.com/hackparking/iraisaito/refs/heads/main/images/product1.jpg" },
+  { id: 2, name: "CPM コインチート", price: 300, img: "https://raw.githubusercontent.com/hackparking/iraisaito/refs/heads/main/images/product2.jpg" },
+  { id: 3, name: "CPM 課金ハウス解放", price: 120, img: "https://raw.githubusercontent.com/hackparking/iraisaito/refs/heads/main/images/product3.jpg" },
+  { id: 4, name: "CPM 課金エンジン解放", price: 210, img: "https://raw.githubusercontent.com/hackparking/iraisaito/refs/heads/main/images/product4.jpg" }
+];
+
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+function showPage(page) {
+  document.getElementById("shop-page").classList.add("hidden");
+  document.getElementById("cart-page").classList.add("hidden");
+  document.getElementById("confirm-page").classList.add("hidden");
+  document.getElementById(`${page}-page`).classList.remove("hidden");
+  if (page === "cart") renderCart();
+  if (page === "shop") renderProducts();
+}
+
+function renderProducts() {
+  const container = document.getElementById("product-list");
+  container.innerHTML = "";
+  products.forEach(p => {
+    container.innerHTML += `
+      <div class="product">
+        <img src="${p.img}" alt="${p.name}">
+        <div class="details">
+          <h2 class="product-title">${p.name}</h2>
+          <p class="product-price">¥${p.price}</p>
+          <button class="button" onclick="addToCart(${p.id})">カートに追加</button>
+        </div>
+      </div>`;
+  });
+}
+
+function addToCart(id) {
+  const item = products.find(p => p.id === id);
+  cart.push(item);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  alert("カートに追加しました！");
+}
+
+function renderCart() {
+  const container = document.getElementById("cart-items");
+  const totalElement = document.getElementById("cart-total");
+  container.innerHTML = "";
+  let total = 0;
+
+  cart.forEach(item => {
+    total += item.price;
+    container.innerHTML += `
+      <div class="cart-item">
+        <img src="${item.img}" alt="${item.name}">
+        <div class="details">
+          <h2 class="product-title">${item.name}</h2>
+          <p class="product-price">¥${item.price}</p>
+        </div>
+      </div>`;
+  });
+
+  totalElement.textContent = `¥${total}`;
+}
+
+function confirmOrder() {
+  if (cart.length === 0) return alert("カートが空です！");
+
+  const name = document.getElementById("buyer-name").value.trim();
+  const discord = document.getElementById("discord-id").value.trim();
+  if (!name || !discord) return alert("名前とDiscord IDを入力してください");
+
+  let content = `🛍️ 新しい注文が届きました！\n\n購入者: ${name}\nDiscord ID: ${discord}\n\n`;
+  let total = 0;
+  cart.forEach(item => {
+    content += `・${item.name}（¥${item.price}）\n`;
+    total += item.price;
+  });
+  content += `\n合計: ¥${total}`;
+
+  const webhookURL = "https://discord.com/api/webhooks/1357962919941374044/cZgh_HNfVLUV3SqeHyweqeO314CeIU3ibmHIrsF039kihZ6DdmUA2S2BW9l3RsiEB961"; // ←適宜書き換えて！
+  fetch(webhookURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ content })
+  }).then(() => {
+    showPage("confirm");
+  }).catch(() => {
+    alert("注文送信に失敗しました");
+  });
+}
+
+function clearCart() {
+  cart = [];
+  localStorage.removeItem("cart");
+}
+
+renderProducts();
+</script>
+</body>
+</html>
