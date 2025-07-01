@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>🚙CPM🚙ショップ</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -90,8 +90,8 @@
   <div style="text-align:center; margin-top: 10px; font-weight: bold; font-size: 16px; color: #d6336c;">
     合計金額: <span id="cart-total">¥0</span>
   </div>
-  <input type="text" id="buyer-name" class="form-input" placeholder="お名前を入力してください">
-  <input type="text" id="discord-id" class="form-input" placeholder="Discord IDを入力してください">
+  <input type="text" id="buyer-name" class="form-input" placeholder="お名前を入力してください" />
+  <input type="text" id="discord-id" class="form-input" placeholder="Discord IDを入力してください" />
   <div style="text-align:center; margin-top:20px;">
     <button class="button" onclick="confirmOrder()">注文を確定する</button>
   </div>
@@ -131,7 +131,7 @@ function renderProducts() {
   products.forEach(p => {
     container.innerHTML += `
       <div class="product">
-        <img src="${p.img}" alt="${p.name}">
+        <img src="${p.img}" alt="${p.name}" />
         <div class="details">
           <h2 class="product-title">${p.name}</h2>
           <p class="product-price">¥${p.price}</p>
@@ -158,7 +158,7 @@ function renderCart() {
     total += item.price;
     container.innerHTML += `
       <div class="cart-item">
-        <img src="${item.img}" alt="${item.name}">
+        <img src="${item.img}" alt="${item.name}" />
         <div class="details">
           <h2 class="product-title">${item.name}</h2>
           <p class="product-price">¥${item.price}</p>
@@ -170,11 +170,17 @@ function renderCart() {
 }
 
 function confirmOrder() {
-  if (cart.length === 0) return alert("カートが空です！");
+  if (cart.length === 0) {
+    alert("カートが空です！");
+    return;
+  }
 
   const name = document.getElementById("buyer-name").value.trim();
   const discord = document.getElementById("discord-id").value.trim();
-  if (!name || !discord) return alert("名前とDiscord IDを入力してください");
+  if (!name || !discord) {
+    alert("名前とDiscord IDを入力してください");
+    return;
+  }
 
   let content = `🛍️ 新しい注文が届きました！\n\n購入者: ${name}\nDiscord ID: ${discord}\n\n`;
   let total = 0;
@@ -201,12 +207,11 @@ function clearCart() {
   localStorage.removeItem("cart");
 }
 
-// 整備中判定
-fetch("maintenance.txt")
+// 整備中判定（キャッシュ防止付き）
+fetch("maintenance.txt?nocache=" + new Date().getTime())
   .then(res => res.text())
   .then(status => {
     if (status.trim() === "0") {
-      // 整備中
       document.getElementById("shop-page").classList.add("hidden");
       document.getElementById("cart-page").classList.add("hidden");
       document.getElementById("confirm-page").classList.add("hidden");
@@ -214,13 +219,12 @@ fetch("maintenance.txt")
       document.getElementById("main-title").classList.add("hidden");
       document.getElementById("maintenance-page").classList.remove("hidden");
     } else {
-      // 通常営業
       renderProducts();
     }
   })
   .catch(err => {
-    console.error("maintenance.txtの読み込み失敗", err);
-    renderProducts(); // 読み込み失敗時は通常モードで続行
+    console.error("maintenance.txt の読み込み失敗", err);
+    renderProducts(); // 失敗時は通常表示
   });
 </script>
 </body>
