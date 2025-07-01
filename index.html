@@ -64,10 +64,18 @@
 </head>
 <body>
 
-<h1>CPM 依頼サイト</h1>
-<div class="nav">
+<h1 id="main-title">CPM 依頼サイト</h1>
+
+<!-- ナビゲーション -->
+<div class="nav" id="nav">
   <button class="button" onclick="showPage('shop')">商品一覧</button>
   <button class="button" onclick="showPage('cart')">カートを見る</button>
+</div>
+
+<!-- 整備中ページ -->
+<div id="maintenance-page" class="hidden">
+  <h2 style="text-align:center; margin-top: 100px; font-size: 32px; color: #d6336c;">🚧 只今整備中です 🚧</h2>
+  <p style="text-align:center;">しばらくしてからアクセスしてください。</p>
 </div>
 
 <!-- 商品一覧 -->
@@ -176,7 +184,7 @@ function confirmOrder() {
   });
   content += `\n合計: ¥${total}`;
 
-  const webhookURL = "https://discord.com/api/webhooks/1357962919941374044/cZgh_HNfVLUV3SqeHyweqeO314CeIU3ibmHIrsF039kihZ6DdmUA2S2BW9l3RsiEB961"; // ←適宜書き換えて！
+  const webhookURL = "https://discord.com/api/webhooks/1357962919941374044/cZgh_HNfVLUV3SqeHyweqeO314CeIU3ibmHIrsF039kihZ6DdmUA2S2BW9l3RsiEB961";
   fetch(webhookURL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -193,7 +201,27 @@ function clearCart() {
   localStorage.removeItem("cart");
 }
 
-renderProducts();
+// 整備中判定
+fetch("maintenance.txt")
+  .then(res => res.text())
+  .then(status => {
+    if (status.trim() === "0") {
+      // 整備中
+      document.getElementById("shop-page").classList.add("hidden");
+      document.getElementById("cart-page").classList.add("hidden");
+      document.getElementById("confirm-page").classList.add("hidden");
+      document.getElementById("nav").classList.add("hidden");
+      document.getElementById("main-title").classList.add("hidden");
+      document.getElementById("maintenance-page").classList.remove("hidden");
+    } else {
+      // 通常営業
+      renderProducts();
+    }
+  })
+  .catch(err => {
+    console.error("maintenance.txtの読み込み失敗", err);
+    renderProducts(); // 読み込み失敗時は通常モードで続行
+  });
 </script>
 </body>
 </html>
